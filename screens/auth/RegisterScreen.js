@@ -25,8 +25,6 @@ const initialState = {
   password: "",
 };
 
-
-
 export default function RegisterScreen({ navigation }) {
    
   const [state, setState] = useState(initialState);

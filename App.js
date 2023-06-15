@@ -1,17 +1,17 @@
+
 import "react-native-gesture-handler";
 import { useState, useEffect } from "react";
+import { Provider } from "react-redux";
 import { useFonts } from "expo-font";
 import { NavigationContainer } from "@react-navigation/native";
 import { ActivityIndicator, View } from "react-native";
-import { createStackNavigator } from "@react-navigation/stack";
 
-import RegisterScreen from "./screens/auth/RegisterScreen";
-import LoginScreen from "./screens/auth/LoginScreen";
-
-const AuthStack = createStackNavigator();
+import useRoute from "./router";
+import { store } from "./redux/store";
 
 export default function App() {
   const [isLoading, setIsLoading] = useState(false);
+  const routing = useRoute({});
 
   const fetchData = async () => {
     setIsLoading(true);
@@ -38,11 +38,8 @@ export default function App() {
   }
 
   return (
-    <NavigationContainer>
-      <AuthStack.Navigator>
-      <AuthStack.Screen name="Registration" options={{headerShown:false}} component={RegisterScreen} />
-      <AuthStack.Screen name="Login" options={{headerShown:false}}  component={LoginScreen} />
-      </AuthStack.Navigator>     
-    </NavigationContainer>
+    <Provider store={store}>
+      <NavigationContainer>{routing}</NavigationContainer>
+    </Provider>
   );
 }

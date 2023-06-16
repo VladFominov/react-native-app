@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-
+import {useDispatch} from "react-redux"
 import {
   StyleSheet,
   Text,
@@ -14,6 +14,7 @@ import {
   Dimensions,
 } from "react-native";
 
+import {authSingInUser} from "../../redux/auth/authOperations";
 
 const image = require("../../assets/photoBG.jpg");
 
@@ -27,6 +28,7 @@ export default function LoginScreen({ navigation }) {
   const [isShowKeyboard, setIsShowKeyboard] = useState(false);
   const [dimensions, setDimensions] = useState(Dimensions.get('window').width - 20 *2)
 
+  const dispatch = useDispatch();
 
   useEffect(() => {
 
@@ -47,17 +49,23 @@ export default function LoginScreen({ navigation }) {
     android: undefined, // Use default behavior
   });
 
-  const keyboardHide = () =>{
+  const handleSubmit = () =>{
     setIsShowKeyboard(false);
     Keyboard.dismiss();
-    console.log(state);
+    
+    dispatch(authSingInUser(state));
     setState(initialState)
   }
 
-  const marginBottomValue = isShowKeyboard ? 32 : 78;
+  // const keyboardHide = () =>{
+  //   Keyboard.dismiss();
+  //   setIsShowKeyboard(false);
+  // }
 
+  const marginBottomValue = isShowKeyboard ? 32 : 78;
+  // onPress={keyboardHide}
   return (
-    <TouchableWithoutFeedback onPress={keyboardHide}>
+    <TouchableWithoutFeedback>
     <View style={styles.container}>
      
       <ImageBackground source={image} resizeMode="cover" style={styles.image}>
@@ -86,8 +94,8 @@ export default function LoginScreen({ navigation }) {
                 onChangeText={(value)=>setState((prevState =>({...prevState,password:value})))}
               ></TextInput>
             </View>
-            <TouchableOpacity style={styles.btn} activeOpacity={0.6}>
-              <Text style={styles.btnText} onPress={keyboardHide}> Увійти</Text>
+            <TouchableOpacity style={styles.btn} activeOpacity={0.6} onPress={handleSubmit} >
+              <Text style={styles.btnText} > Увійти</Text>
             </TouchableOpacity>
             <TouchableOpacity style={styles.loginLink} activeOpacity={0.6} onPress={() => navigation.navigate("Registration")}>
               <Text style={styles.loginLinkText} >Немає акаунту? Зареєструватися</Text>

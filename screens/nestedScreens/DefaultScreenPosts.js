@@ -4,7 +4,7 @@ import { Text, View, StyleSheet, FlatList, Image,TouchableOpacity } from "react-
 
 
 const DefaultScreenPosts = ({ route, navigation }) => {
-  console.log("navigation :",navigation)
+  
   const [posts, setPosts] = useState([]);
   console.log("route.params :", route.params);
 
@@ -14,7 +14,6 @@ const DefaultScreenPosts = ({ route, navigation }) => {
     }
   }, [route.params]);
 
-  console.log("posts :", posts);
   return (
     <View style={styles.container}>
       <FlatList

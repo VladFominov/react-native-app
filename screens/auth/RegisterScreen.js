@@ -21,7 +21,7 @@ import {authSingUpUser} from "../../redux/auth/authOperations";
 const image = require("../../assets/photoBG.jpg");
 
 const initialState = {
-  login: "",
+  nickName: "",
   email: "",
   password: "",
 };
@@ -43,10 +43,10 @@ export default function RegisterScreen({ navigation }) {
       setDimensions(width);
     };
 
-    Dimensions.addEventListener("change", onChange);
+    const dimension = Dimensions.addEventListener("change", onChange);
 
     return () => {
-      Dimensions.removeEventListener("change", onChange);
+      dimension
     };
   }, []);
 
@@ -58,9 +58,9 @@ export default function RegisterScreen({ navigation }) {
   const handleSubmit = () => {
     setIsShowKeyboard(false);
     Keyboard.dismiss();
-    
-    dispatch(authSingUpUser(state));
     setState(initialState);
+    dispatch(authSingUpUser(state));
+    
   };
 
   const marginBottomValue = isShowKeyboard ? 32 : 78;
@@ -78,11 +78,11 @@ export default function RegisterScreen({ navigation }) {
                 <View style={{ marginTop: 33 }}>
                   <TextInput
                     style={styles.input}
-                    placeholder="Логин"
-                    value={state.login}
+                    placeholder="nickName"
+                    value={state.nickName}
                     onFocus={() => setIsShowKeyboard(true)}
                     onChangeText={(value) =>
-                      setState((prevState) => ({ ...prevState, login: value }))
+                      setState((prevState) => ({ ...prevState, nickName: value }))
                     }
                   ></TextInput>
                 </View>

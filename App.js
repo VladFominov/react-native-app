@@ -1,27 +1,16 @@
-
 import "react-native-gesture-handler";
-import { useState, useEffect } from "react";
+
+import { useState } from "react";
 import { Provider } from "react-redux";
 import { useFonts } from "expo-font";
-import { NavigationContainer } from "@react-navigation/native";
 import { ActivityIndicator, View } from "react-native";
-import {onAuthStateChanged} from "firebase/auth";
-import useRoute from "./router";
 import { store } from "./redux/store";
 
-import {FIREBASE_AUTH} from "./firebase/config"
+import Main from "./components/main"
+console.log("Initial state: ", store.getState())
 
 export default function App() {
   const [isLoading, setIsLoading] = useState(false);
-const [user, setUser] = useState(null);
-
-useEffect(() =>{
-  onAuthStateChanged(FIREBASE_AUTH,(user) =>{
-    setUser(user);
-  })
-})
-
-  const routing = useRoute(user);
 
   const fetchData = async () => {
     setIsLoading(true);
@@ -49,7 +38,7 @@ useEffect(() =>{
 
   return (
     <Provider store={store}>
-      <NavigationContainer>{routing}</NavigationContainer>
+    <Main />
     </Provider>
   );
 }

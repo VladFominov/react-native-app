@@ -13,10 +13,9 @@ import {
   Keyboard,
   TouchableWithoutFeedback,
   Dimensions,
-  
 } from "react-native";
 
-import {authSingUpUser} from "../../redux/auth/authOperations";
+import { authSingUpUser } from "../../redux/auth/authOperations";
 
 const image = require("../../assets/photoBG.jpg");
 
@@ -29,8 +28,11 @@ const initialState = {
 export default function RegisterScreen({ navigation }) {
   const [state, setState] = useState(initialState);
   const [isShowKeyboard, setIsShowKeyboard] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+  const [isNickNameFocused, setIsNickNameFocused] = useState(false);
+  const [isEmailFocused, setIsEmailFocused] = useState(false);
+  const [isPasswordFocused, setIsPasswordFocused] = useState(false);
 
-  
   const dispatch = useDispatch();
 
   const [dimensions, setDimensions] = useState(
@@ -46,7 +48,7 @@ export default function RegisterScreen({ navigation }) {
     const dimension = Dimensions.addEventListener("change", onChange);
 
     return () => {
-      dimension
+      dimension;
     };
   }, []);
 
@@ -60,13 +62,12 @@ export default function RegisterScreen({ navigation }) {
     Keyboard.dismiss();
     setState(initialState);
     dispatch(authSingUpUser(state));
-    
   };
 
   const marginBottomValue = isShowKeyboard ? 32 : 78;
   // onPress={keyboardHide}
   return (
-    <TouchableWithoutFeedback >
+    <TouchableWithoutFeedback>
       <View style={styles.container}>
         <ImageBackground source={image} resizeMode="cover" style={styles.image}>
           <KeyboardAvoidingView behavior={keyboardBehavior}>
@@ -77,20 +78,35 @@ export default function RegisterScreen({ navigation }) {
                 <Text style={styles.titleText}>Реєстрація</Text>
                 <View style={{ marginTop: 33 }}>
                   <TextInput
-                    style={styles.input}
+                    
+                    style={[
+                      styles.input,
+                      isNickNameFocused && styles.inputFocused,
+                    ]}
                     placeholder="nickName"
                     value={state.nickName}
-                    onFocus={() => setIsShowKeyboard(true)}
+                    onFocus={() => setIsNickNameFocused(true)}
+                    onBlur={() => setIsNickNameFocused(false)}
+                    // onFocus={() => setIsShowKeyboard(true)}
                     onChangeText={(value) =>
-                      setState((prevState) => ({ ...prevState, nickName: value }))
+                      setState((prevState) => ({
+                        ...prevState,
+                        nickName: value,
+                      }))
                     }
                   ></TextInput>
                 </View>
                 <View style={{ marginTop: 16 }}>
                   <TextInput
-                    style={styles.input}
-                    placeholder="Адрес электронной почты"
-                    onFocus={() => setIsShowKeyboard(true)}
+                    // style={styles.input}
+                    style={[
+                      styles.input,
+                      isEmailFocused && styles.inputFocused,
+                    ]}
+                    placeholder="Адреса електронної пошти"
+                    onFocus={() => setIsEmailFocused(true)}
+                    onBlur={() => setIsEmailFocused(false)}
+                    // onFocus={() => setIsShowKeyboard(true)}
                     value={state.email}
                     onChangeText={(value) =>
                       setState((prevState) => ({ ...prevState, email: value }))
@@ -100,10 +116,16 @@ export default function RegisterScreen({ navigation }) {
 
                 <View style={{ marginTop: 16 }}>
                   <TextInput
-                    style={styles.input}
-                    secureTextEntry={true}
+                    // style={styles.input}
+                    style={[
+                      styles.input,
+                      isPasswordFocused && styles.inputFocused,
+                    ]}
+                    secureTextEntry={!showPassword}
                     placeholder="Пароль"
-                    onFocus={() => setIsShowKeyboard(true)}
+                    onFocus={() => setIsPasswordFocused(true)}
+                    onBlur={() => setIsPasswordFocused(false)}
+                    // onFocus={() => setIsShowKeyboard(true)}
                     value={state.password}
                     onChangeText={(value) =>
                       setState((prevState) => ({
@@ -112,6 +134,17 @@ export default function RegisterScreen({ navigation }) {
                       }))
                     }
                   ></TextInput>
+                  <TouchableOpacity
+                    style={styles.showPasswordBtn}
+                    activeOpacity={0.6}
+                  >
+                    <Text
+                      style={styles.showPasswordBtText}
+                      onPress={() => setShowPassword(!showPassword)}
+                    >
+                      {showPassword ? "Приховати" : "Показати"}
+                    </Text>
+                  </TouchableOpacity>
                 </View>
                 <TouchableOpacity style={styles.btn} activeOpacity={0.6}>
                   <Text style={styles.btnText} onPress={handleSubmit}>
@@ -171,6 +204,17 @@ const styles = StyleSheet.create({
     paddingLeft: 16,
     backgroundColor: "#E8E8E8",
     color: "#212121",
+  },
+  inputFocused: {
+    borderColor: "#FF6C00",
+  },
+  showPasswordBtn: {
+    position: "absolute",
+    top: 16,
+    right: 16,
+  },
+  showPasswordBtText: {
+    color: "#1B4371",
   },
   btn: {
     // padding: 16 32 16 32,

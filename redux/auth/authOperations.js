@@ -21,8 +21,7 @@ export const authSingUpUser =
       await createUserWithEmailAndPassword(auth, email, password);
 
       const user = await auth.currentUser;
-      console.log("user:", user);
-
+      
       await updateProfile(user, { displayName: nickName });
 
       const { uid, displayName } = auth.currentUser;
@@ -61,7 +60,6 @@ export const authStateChangeUser = () => async (dispatch, getState) => {
   try {
     await onAuthStateChanged(auth, (user) => {
       if (user) {
-        console.log("authStateChangeUser: ", user);
         const userUpdateProfile = {
           nickName: user.displayName,
           userId: user.uid,

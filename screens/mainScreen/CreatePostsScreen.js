@@ -14,7 +14,7 @@ import {
 import { useIsFocused } from "@react-navigation/native";
 import { Camera, CameraType } from "expo-camera";
 import * as MediaLibrary from "expo-media-library";
-import { AntDesign, MaterialIcons } from "@expo/vector-icons";
+import { AntDesign, MaterialIcons, EvilIcons } from "@expo/vector-icons";
 
 import { STORAGE_DB, FIRESTORE_DB } from "../../firebase/config";
 
@@ -26,6 +26,8 @@ const CreatePostScreen = ({ navigation }) => {
   const [photo, setPhoto] = useState(null);
   const [comment, setComment] = useState("");
   const [location, setLocation] = useState(null);
+  const [imageLocation, setImageLocation] = useState(null);
+  const [errorMsg, setErrorMsg] = useState(null);
   const [type, setType] = useState(CameraType.back);
 
   const isFocused = useIsFocused();
@@ -50,6 +52,7 @@ const CreatePostScreen = ({ navigation }) => {
       }
 
       let location = await Location.getCurrentPositionAsync({});
+      console.log("Location:", location);
       setLocation(location);
     })();
   }, []);
@@ -61,13 +64,32 @@ const CreatePostScreen = ({ navigation }) => {
   const takePhoto = async () => {
     const photo = await camera.takePictureAsync();
     setPhoto(photo.uri);
+    // якщо є локація мі забираємо дані
+    if (location) {
+      console.log("Location: ", location);
+      try {
+        const locationInfo = await Location.reverseGeocodeAsync({
+          latitude: location.coords.latitude,
+          longitude: location.coords.longitude,
+        });
+        console.log("locationInfo: ", locationInfo);
+        if (locationInfo && locationInfo.length > 0) {
+          const formattedAddress = locationInfo[0].region;
+
+          setImageLocation(formattedAddress);
+        }
+      } catch (error) {
+        console.error("Error while fetching location info:", error);
+      }
+    }
+    //кінець коду по забору даних по локації
   };
 
   const sendPhoto = async () => {
-    // try{}catch(err){console.log(err);
     uploadPostToServer();
-    navigation.navigate("DefaultScreen");
+    navigation.navigate("Posts");
     setPhoto(null);
+    setComment("");
   };
 
   // функция, для корректной работы =================
@@ -90,29 +112,26 @@ const CreatePostScreen = ({ navigation }) => {
 
   // end функция, для корректной работы =================
 
-
-
   const uploadPhotoToServer = async () => {
     const uniquePostId = Date.now().toString();
     const storageRef = ref(STORAGE_DB, `images/${uniquePostId}`);
     const blobFile = await uriToBlob(photo);
 
     try {
-       await uploadBytes(storageRef, blobFile);
-      const data =await getDownloadURL(storageRef, data);
-      console.log("data: ", data)
+      await uploadBytes(storageRef, blobFile);
+      const data = await getDownloadURL(storageRef, data);
+      console.log("data: ", data);
       return data;
     } catch (err) {
       console.log("err", err);
       console.log("err.message", err.message);
     }
-    
   };
 
   const uploadPostToServer = async () => {
     const photo = await uploadPhotoToServer();
-    console.log("photo: ", photo)
-    try{
+
+    try {
       const createPost = await addDoc(collection(FIRESTORE_DB, "posts"), {
         photo,
         comment,
@@ -120,11 +139,10 @@ const CreatePostScreen = ({ navigation }) => {
         userId,
         nickName,
       });
-      console.log("createPost: ", createPost)
-    }catch(err){
+      console.log("createPost: ", createPost);
+    } catch (err) {
       console.error("Error adding document: ", err);
     }
-   
   };
 
   return (
@@ -136,7 +154,7 @@ const CreatePostScreen = ({ navigation }) => {
             ref={(ref) => setCamera(ref)}
             type={type}
           >
-            <View style={styles.buttonContainer}>
+            <View style={{ marginLeft: 250 }}>
               <TouchableOpacity
                 style={styles.flipCameraBtn}
                 onPress={toggleCameraType}
@@ -167,13 +185,29 @@ const CreatePostScreen = ({ navigation }) => {
           </Camera>
         )}
 
-        <View style={{ marginTop: 33 }}>
+        <View style={{ marginTop: 1 }}>
           <TextInput
             style={styles.input}
             placeholder="Назва..."
-            // value={state.login}
+            value={comment}
             // onFocus={() => setIsShowKeyboard(true)}
             onChangeText={setComment}
+          ></TextInput>
+        </View>
+        <View
+          style={{
+            marginTop: 5,
+            flexDirection: "row",
+            alignItems: "center",
+            gap: 3,
+          }}
+        >
+          <EvilIcons name="location" size={28} color="black" />
+          <TextInput
+            style={{ height: 50, borderColor: `#E5E5E5` }}
+            placeholder="Місцевість..."
+            value={imageLocation}
+            onChangeText={setImageLocation}
           ></TextInput>
         </View>
         <TouchableOpacity
@@ -197,8 +231,8 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
   },
   camera: {
-    height: "60%",
-    marginTop: 30,
+    height: "65%",
+    marginTop: 20,
     alignItems: "center",
     justifyContent: "center",
     backgroundColor: "#F6F6F6",
@@ -207,7 +241,6 @@ const styles = StyleSheet.create({
     borderColor: "#E8E8E8",
   },
   flipCameraBtn: {
-    marginTop: 50,
     padding: 10,
     backgroundColor: "rgba(255, 255, 255, 0.3)",
     width: 50,
@@ -248,7 +281,7 @@ const styles = StyleSheet.create({
     borderRadius: 100,
     backgroundColor: "#FF6C00",
     height: 51,
-    marginTop: 43,
+    marginTop: 30,
     justifyContent: "center",
     textAlign: "center",
   },

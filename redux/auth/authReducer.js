@@ -23,8 +23,8 @@ export const authSlice = createSlice({
     authSignOut: () => initialState,
   },
 });
-console.log("authSlice: ",authSlice)
-console.log("authSlice.initialState: ",authSlice.getInitialState())
+// console.log("authSlice: ",authSlice)
+// console.log("authSlice.initialState: ",authSlice.getInitialState())
 
 // export const { updateUserProfile, authStateChange } = authSlice.actions;
 // console.log("updateUserProfile: ",updateUserProfile)

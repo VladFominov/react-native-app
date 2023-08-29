@@ -56,7 +56,7 @@ const DefaultScreenPosts = ({ route, navigation }) => {
       <TouchableOpacity
         style={styles.loginLink}
         activeOpacity={0.6}
-        onPress={() => navigation.navigate("Comments",{postId: item.id})}
+        onPress={() => navigation.navigate("Коментарі",{postId: item.id})}
       >
         <Text style={styles.loginLinkText}>Додати коментар</Text>
       </TouchableOpacity>

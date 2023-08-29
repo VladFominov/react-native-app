@@ -10,8 +10,8 @@ const NestedScreen = createStackNavigator();
 const PostScreen = () =>{
     return(
 <NestedScreen.Navigator>
-    <NestedScreen.Screen name="DefaultScreen" component={DefaultScreenPosts} />
-    <NestedScreen.Screen name="Comments" component={CommentsScreen} /> 
+    <NestedScreen.Screen name="Всі пости користувачів" component={DefaultScreenPosts} />
+    <NestedScreen.Screen name="Коментарі" component={CommentsScreen} /> 
     <NestedScreen.Screen name="Map" component={MapScreen} />
 </NestedScreen.Navigator>
     )

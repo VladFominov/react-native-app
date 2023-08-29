@@ -1,5 +1,6 @@
 import { createStackNavigator } from "@react-navigation/stack";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
+import {useSelector} from "react-redux"
 
 import RegisterScreen from "./screens/auth/RegisterScreen";
 import LoginScreen from "./screens/auth/LoginScreen";
@@ -16,7 +17,8 @@ const AuthStack = createStackNavigator();
 const MainTab = createBottomTabNavigator();
 
 const useRoute = (isAuth) => {
-  console.log("isAuth: ",isAuth);
+  // console.log("isAuth: ",isAuth);
+  const {nickName} = useSelector(state => state.auth)
   if (!isAuth) {
     return (
       <AuthStack.Navigator>
@@ -35,13 +37,13 @@ const useRoute = (isAuth) => {
   }
   return (
     <MainTab.Navigator screenOptions={{ tabBarShowLabel: false,tabBarStyle:{
-      height: 83,
+      height: 75,
     },
     tabBarActiveTintColor: "#FF6C00" }}>
       <MainTab.Screen
         options={{
           tabBarIcon: ({ focused, size, color }) => (
-            <MaterialCommunityIcons name="post" size={55} color={color} />
+            <MaterialCommunityIcons name="post" size={45} color={color} />
           ),
           
         }}
@@ -51,19 +53,19 @@ const useRoute = (isAuth) => {
       <MainTab.Screen
         options={{
           tabBarIcon: ({ focused, size, color }) => (
-            <Ionicons name="add-circle" size={55} color={color} />
+            <Ionicons name="add-circle" size={45} color={color} />
           ),
         }}
-        name="CreatePosts"
+        name="Створити публікацію"
         component={CreatePostsScreen}
       />
       <MainTab.Screen
         options={{
           tabBarIcon: ({ focused, size, color }) => (
-            <SimpleLineIcons name="user" size={55} color={color} />
+            <SimpleLineIcons name="user" size={45} color={color} />
           ),
         }}
-        name="ProfileScreen"
+        name={nickName}
         component={ProfileScreen}
       />
     </MainTab.Navigator>

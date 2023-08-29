@@ -26,6 +26,9 @@ const initialState = {
 export default function LoginScreen({ navigation }) {
   const [state, setState] = useState(initialState);
   const [isShowKeyboard, setIsShowKeyboard] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+  const [isEmailFocused, setIsEmailFocused] = useState(false);
+  const [isPasswordFocused, setIsPasswordFocused] = useState(false);
   const [dimensions, setDimensions] = useState(Dimensions.get('window').width - 20 *2)
 
   const dispatch = useDispatch();
@@ -76,9 +79,13 @@ export default function LoginScreen({ navigation }) {
           
             <View style={{ marginTop: 32 }}>
               <TextInput
-                style={styles.input}
-                placeholder="Адрес электронной почты"
-                onFocus={() => setIsShowKeyboard(true)}
+                style={[
+                  styles.input,
+                  isEmailFocused && styles.inputFocused,
+                ]}
+                placeholder="Адреса електронної пошти"
+                onFocus={() => setIsEmailFocused(true)}
+                    onBlur={() => setIsEmailFocused(false)}
                 value={state.email}
                 onChangeText={(value)=>setState((prevState =>({...prevState,email:value})))}
               ></TextInput>
@@ -86,13 +93,22 @@ export default function LoginScreen({ navigation }) {
 
             <View style={{ marginTop: 16 }}>
               <TextInput
-                style={styles.input}
-                secureTextEntry={true}
+                 style={[
+                  styles.input,
+                  isPasswordFocused && styles.inputFocused,
+                ]}
+                secureTextEntry={!showPassword}
                 placeholder="Пароль"
-                onFocus={() => setIsShowKeyboard(true)}
+                onFocus={() => setIsPasswordFocused(true)}
+                    onBlur={() => setIsPasswordFocused(false)}
                 value={state.password}
                 onChangeText={(value)=>setState((prevState =>({...prevState,password:value})))}
               ></TextInput>
+               <TouchableOpacity style={styles.showPasswordBtn} activeOpacity={0.6}>
+                  <Text style={styles.showPasswordBtText} onPress={() => setShowPassword(!showPassword)}>
+                  {showPassword ? "Приховати" : "Показати"}
+                  </Text>
+                </TouchableOpacity>
             </View>
             <TouchableOpacity style={styles.btn} activeOpacity={0.6} onPress={handleSubmit} >
               <Text style={styles.btnText} > Увійти</Text>
@@ -147,6 +163,18 @@ const styles = StyleSheet.create({
     paddingLeft: 16,
     backgroundColor: "#E8E8E8",
     color: "#212121",
+  },
+  inputFocused: {
+    borderColor: "#FF6C00",
+  },
+  showPasswordBtn:{
+    position: "absolute",
+    top: 16,
+    right: 16,
+  },
+  showPasswordBtText:{
+    color: "#1B4371",
+   
   },
   btn: {
     // padding: 16 32 16 32,

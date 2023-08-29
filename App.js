@@ -7,7 +7,7 @@ import { ActivityIndicator, View } from "react-native";
 import { store } from "./redux/store";
 
 import Main from "./components/main"
-console.log("Initial state: ", store.getState())
+// console.log("Initial state: ", store.getState())
 
 export default function App() {
   const [isLoading, setIsLoading] = useState(false);

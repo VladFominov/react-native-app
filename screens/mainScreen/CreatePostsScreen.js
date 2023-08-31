@@ -120,7 +120,7 @@ const CreatePostScreen = ({ navigation }) => {
     try {
       await uploadBytes(storageRef, blobFile);
       const data = await getDownloadURL(storageRef, data);
-      console.log("data: ", data);
+     
       return data;
     } catch (err) {
       console.log("err", err);
@@ -190,7 +190,6 @@ const CreatePostScreen = ({ navigation }) => {
             style={styles.input}
             placeholder="Назва..."
             value={comment}
-            // onFocus={() => setIsShowKeyboard(true)}
             onChangeText={setComment}
           ></TextInput>
         </View>

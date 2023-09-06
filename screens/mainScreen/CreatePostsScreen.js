@@ -22,9 +22,9 @@ const CreatePostScreen = ({ navigation }) => {
   const [camera, setCamera] = useState(null);
 
   const [hasCameraPermission, setHasCameraPermission] = useState(null);
-  // const [permission, requestPermission] = Camera.useCameraPermissions();
   const [photo, setPhoto] = useState(null);
   const [comment, setComment] = useState("");
+const [totalLikes, setTotalLikes] = useState(0); 
   const [location, setLocation] = useState(null);
   const [imageLocation, setImageLocation] = useState(null);
   const [errorMsg, setErrorMsg] = useState(null);
@@ -65,7 +65,7 @@ const CreatePostScreen = ({ navigation }) => {
     const photo = await camera.takePictureAsync();
     setPhoto(photo.uri);
     // якщо є локація мі забираємо дані
-    if (location) {
+    if (location && location.coords) {
       console.log("Location: ", location);
       try {
         const locationInfo = await Location.reverseGeocodeAsync({
@@ -81,6 +81,9 @@ const CreatePostScreen = ({ navigation }) => {
       } catch (error) {
         console.error("Error while fetching location info:", error);
       }
+    }else {
+      // Handle the case when location is not available
+      console.log("Location data is not available.");
     }
     //кінець коду по забору даних по локації
   };
@@ -135,6 +138,7 @@ const CreatePostScreen = ({ navigation }) => {
       const createPost = await addDoc(collection(FIRESTORE_DB, "posts"), {
         photo,
         comment,
+        totalLikes, 
         location: location.coords,
         userId,
         nickName,

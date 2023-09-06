@@ -7,25 +7,30 @@ import {
   TouchableOpacity,
   SafeAreaView,
   FlatList,
+  Image,
 } from "react-native";
 import { useSelector } from "react-redux";
 import {
   collection,
   addDoc,
   onSnapshot,
+  getDocs,
+  query,
+  where,
 } from "firebase/firestore";
 
 import { FIRESTORE_DB } from "../../firebase/config";
 
 const CommentsScreen = ({ route }) => {
+ 
   const [allComments, setAllComments] = useState([]);
-  const { postId } = route.params;
+  const { postId,imageUri } = route.params;
   const [comment, setComment] = useState("");
 
-  const { nickName } = useSelector((state) => state.auth);
+  const { nickName, userId } = useSelector((state) => state.auth);
 
   useEffect(() => {
-    getAllPosts();
+    getAllPostData();
   }, []);
 
   const createPost = async () => {
@@ -34,19 +39,32 @@ const CommentsScreen = ({ route }) => {
     setComment("");
   };
 
-  const getAllPosts = async () => {
-    const commentsRef = collection(FIRESTORE_DB, "posts", postId, "comments");
-    await onSnapshot(commentsRef, (data) =>
-      setAllComments(
-        data.docs.map((doc) => ({
-          ...doc.data(), id: doc.id,
-        }))
-      )
-    );
+  const getAllPostData = async () => {
+    try {
+      const commentsRef = collection(FIRESTORE_DB, "posts", postId, "comments");
+      await onSnapshot(commentsRef, (data) =>
+        setAllComments(
+          data.docs.map((doc) => ({
+            ...doc.data(),
+            id: doc.id,
+          }))
+        )
+      );
+    } catch (err) {
+      console.log(console.error("Error fetching post data:", err));
+    }
   };
 
   return (
     <View style={styles.container}>
+     
+          <View>
+            <Image
+              source={{ uri: imageUri}}
+              style={{ width: 350, height: 200 }}
+            />
+          </View>
+       
       <SafeAreaView style={styles.container}>
         <FlatList
           data={allComments}
@@ -83,12 +101,12 @@ const styles = StyleSheet.create({
     flex: 1,
     // justifyContent: 'flex-end',
   },
-  commentContainer:{
-borderColor:"#FF6C00",
-borderWidth:1,
-marginHorizontal: 16,
-padding: 10,
-marginBottom: 10,
+  commentContainer: {
+    borderColor: "#FF6C00",
+    borderWidth: 1,
+    marginHorizontal: 16,
+    padding: 10,
+    marginBottom: 10,
   },
   input: {
     height: 50,

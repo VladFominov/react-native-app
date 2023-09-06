@@ -1,28 +1,61 @@
 import { useEffect, useState } from "react";
-import { collection, onSnapshot } from "firebase/firestore";
+import { collection, onSnapshot, doc, updateDoc, getDocs } from "firebase/firestore";
 import {
   Text,
   View,
   StyleSheet,
   FlatList,
-  Image,
-  TouchableOpacity,
 } from "react-native";
 
 import { FIRESTORE_DB } from "../../firebase/config";
+import Post from "../../components/Post";
 
-const DefaultScreenPosts = ({ route, navigation }) => {
+const DefaultScreenPosts = ({ navigation }) => {
   const [posts, setPosts] = useState([]);
+  const [commentsCounts, setCommentsCounts] = useState({});
+  const [likesCounts, setLikesCounts] = useState({});
 
   const getAllPosts = async () => {
-    await onSnapshot(collection(FIRESTORE_DB, "posts"),(data)=>setPosts(data.docs.map((doc) => ({
-      ...doc.data(),
-      id: doc.id,
-    }))) );
+    await onSnapshot(collection(FIRESTORE_DB, "posts"), (data) =>{
+      const postList = data.docs.map((doc) => ({
+        ...doc.data(),
+        id: doc.id,
+      }));
+      const initialLikesCounts = {};
+      const initialCommentsCounts = {};
+      
+       // Create a function to fetch comments for a post
+    const fetchComments = async (post) => {
+      initialLikesCounts[post.id] = post.totalLikes || 0;
+      const commentsSnapshot = await getDocs(
+        collection(FIRESTORE_DB, "posts", post.id, "comments")
+      );
+      initialCommentsCounts[post.id] = commentsSnapshot.size;
+    };
+
+    // Create an array of promises to fetch comments for each post
+    const fetchCommentsPromises = postList.map(fetchComments);
+
+    // Wait for all comments to be fetched before setting state
+    Promise.all(fetchCommentsPromises)
+      .then(() => {
+        setPosts(postList);
+        setLikesCounts(initialLikesCounts);
+        setCommentsCounts(initialCommentsCounts);
+      })
+      .catch((error) => {
+        console.error("Error fetching comments:", error);
+      });
+    });
+   };
+
+  const incrementLikes = async (postId) => {
+    const postRef = doc(FIRESTORE_DB, "posts", postId);
+    await updateDoc(postRef, { totalLikes: likesCounts[postId] + 1, });
   };
 
   useEffect(() => {
-    getAllPosts()
+    getAllPosts();
   }, []);
 
   return (
@@ -38,29 +71,19 @@ const DefaultScreenPosts = ({ route, navigation }) => {
               alignItems: "center",
             }}
           >
-            <Image
-              source={{ uri: item.photo }}
-              style={{ width: 350, height: 200 }}
+            <Post
+              imageUri={item.photo}
+              commentsLink={() =>
+                navigation.navigate("Коментарі", { postId: item.id,imageUri: item.photo, })
+              }
+              locationLink={() =>
+                navigation.navigate("Map", { location: item.location })
+              }
+              postComment={item.comment}
+              commentsAmount={commentsCounts[item.id]}
+              likesCountHandler={() => incrementLikes(item.id)}
+              likesAmount={likesCounts[item.id]}
             />
-            <View>
-              <Text>{item.comment}</Text>
-            </View>
-            <View>
-            <TouchableOpacity
-        style={styles.loginLink}
-        activeOpacity={0.6}
-        onPress={() => navigation.navigate("Map",{location: item.location})}
-      >
-        <Text style={styles.loginLinkText}>Go to map</Text>
-      </TouchableOpacity>
-      <TouchableOpacity
-        style={styles.loginLink}
-        activeOpacity={0.6}
-        onPress={() => navigation.navigate("Коментарі",{postId: item.id})}
-      >
-        <Text style={styles.loginLinkText}>Додати коментар</Text>
-      </TouchableOpacity>
-            </View>
           </View>
         )}
       />

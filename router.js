@@ -1,6 +1,5 @@
 import { createStackNavigator } from "@react-navigation/stack";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
-import {useSelector} from "react-redux"
 
 import RegisterScreen from "./screens/auth/RegisterScreen";
 import LoginScreen from "./screens/auth/LoginScreen";
@@ -17,8 +16,7 @@ const AuthStack = createStackNavigator();
 const MainTab = createBottomTabNavigator();
 
 const useRoute = (isAuth) => {
-  // console.log("isAuth: ",isAuth);
-  const {nickName} = useSelector(state => state.auth)
+  //  console.log("isAuth: ",isAuth);
   if (!isAuth) {
     return (
       <AuthStack.Navigator>
@@ -37,7 +35,7 @@ const useRoute = (isAuth) => {
   }
   return (
     <MainTab.Navigator screenOptions={{ tabBarShowLabel: false,tabBarStyle:{
-      height: 75,
+      height: 60,
     },
     tabBarActiveTintColor: "#FF6C00" }}>
       <MainTab.Screen
@@ -61,11 +59,12 @@ const useRoute = (isAuth) => {
       />
       <MainTab.Screen
         options={{
+           headerShown: false ,
           tabBarIcon: ({ focused, size, color }) => (
             <SimpleLineIcons name="user" size={45} color={color} />
           ),
         }}
-        name={nickName}
+        name="nickName"
         component={ProfileScreen}
       />
     </MainTab.Navigator>

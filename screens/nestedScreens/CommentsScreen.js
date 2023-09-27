@@ -8,7 +8,13 @@ import {
   SafeAreaView,
   FlatList,
   Image,
+  KeyboardAvoidingView,
+  TouchableWithoutFeedback,
+  Keyboard,
 } from "react-native";
+import { FontAwesome5 } from "@expo/vector-icons";
+import { ref, uploadBytes, getDownloadURL, deleteObject } from 'firebase/storage';
+import {  STORAGE_DB } from '../../firebase/config';
 import { useSelector } from "react-redux";
 import {
   collection,
@@ -20,27 +26,35 @@ import {
 } from "firebase/firestore";
 
 import { FIRESTORE_DB } from "../../firebase/config";
+import useFirebaseAvatar from "../../hooks/useFirebaseAvatar";
+
+const MAX_CHARACTERS_PER_LINE = 37;
 
 const CommentsScreen = ({ route }) => {
- 
   const [allComments, setAllComments] = useState([]);
-  const { postId,imageUri } = route.params;
+  const { postId, imageUri } = route.params;
   const [comment, setComment] = useState("");
+  const [isShowKeyboard, setIsShowKeyboard] = useState(false);
+  const { getAvatarUrl, isLoading } = useFirebaseAvatar();
 
-  const { nickName, userId } = useSelector((state) => state.auth);
+  const { nickName,userId } = useSelector((state) => state.auth);
 
   useEffect(() => {
     getAllPostData();
   }, []);
 
   const createPost = async () => {
+    setIsShowKeyboard(false);
+    Keyboard.dismiss();
     const commentsRef = collection(FIRESTORE_DB, "posts", postId, "comments");
-    await addDoc(commentsRef, { comment, nickName });
+    const avatarRef = await getAvatarUrl(userId);
+    await addDoc(commentsRef, { comment, nickName,avatarRef });
     setComment("");
   };
 
   const getAllPostData = async () => {
     try {
+     
       const commentsRef = collection(FIRESTORE_DB, "posts", postId, "comments");
       await onSnapshot(commentsRef, (data) =>
         setAllComments(
@@ -56,80 +70,110 @@ const CommentsScreen = ({ route }) => {
   };
 
   return (
-    <View style={styles.container}>
-     
-          <View>
-            <Image
-              source={{ uri: imageUri}}
-              style={{ width: 350, height: 200 }}
-            />
-          </View>
-       
-      <SafeAreaView style={styles.container}>
-        <FlatList
-          data={allComments}
-          renderItem={({ item }) => (
-            <View style={styles.commentContainer}>
-              <Text>{item.comment}</Text>
-              <Text>{item.nickName}</Text>
-            </View>
-          )}
-          keyExtractor={(item) => item.id}
-        />
-      </SafeAreaView>
-      <View style={{ marginTop: 33 }}>
-        <TextInput
-          style={styles.input}
-          placeholder="Текст..."
-          onChangeText={setComment}
-          value={comment}
-        ></TextInput>
+    <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+      <View style={styles.container}>
+        <View style={styles.imgContainer}>
+          <Image
+            source={{ uri: imageUri }}
+            style={{ width: 380, height: 200 }}
+          />
+        </View>
+
+        <SafeAreaView style={styles.container}>
+          <FlatList
+            data={allComments}
+            renderItem={({ item }) => (
+              <View>
+                
+                  <View style={styles.avatarContainer} >
+                  <Text>{item.nickName}</Text>
+                    <Image source={{ uri: item.avatarRef }} style={{ width: 40, height: 40, borderRadius: 50}} />
+                  </View>
+                
+                <View style={styles.commentContainer}>
+                  <Text style={styles.commentText}>{item.comment}</Text>
+                </View>
+              </View>
+            )}
+            keyExtractor={(item) => item.id}
+          />
+        </SafeAreaView>
+        <View style={styles.inputAndBtnWrap}>
+          <TextInput
+            style={styles.input}
+            placeholder="Коментувати..."
+            onChangeText={setComment}
+            value={comment}
+            multiline={true}
+            numberOfLines={10}
+            maxLength={MAX_CHARACTERS_PER_LINE}
+          ></TextInput>
+
+          <TouchableOpacity
+            style={styles.btn}
+            activeOpacity={0.6}
+            onPress={createPost}
+          >
+            <FontAwesome5 name="arrow-circle-up" size={24} color="#FF6C00" />
+          </TouchableOpacity>
+        </View>
       </View>
-      <TouchableOpacity
-        style={styles.btn}
-        activeOpacity={0.6}
-        onPress={createPost}
-      >
-        <Text style={styles.btnText}>Створити пост</Text>
-      </TouchableOpacity>
-    </View>
+    </TouchableWithoutFeedback>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    
     // justifyContent: 'flex-end',
   },
+  imgContainer: {
+    marginHorizontal: 16,
+    marginBottom: 20,
+  },
+  avatarContainer:{
+    marginLeft: 5,
+  },
   commentContainer: {
-    borderColor: "#FF6C00",
+    borderColor: "rgba(0, 0, 0, 0.03)",
+    backgroundColor: "rgba(0, 0, 0, 0.03)",
     borderWidth: 1,
+    borderBottomEndRadius:12,
+    borderTopRightRadius:12,
+    borderBottomLeftRadius:12,
     marginHorizontal: 16,
     padding: 10,
     marginBottom: 10,
   },
+  commentText: {
+    
+  },
+  inputAndBtnWrap: {
+    borderRadius: 100,
+    backgroundColor: "rgba(0, 0, 0, 0.03)",
+    marginTop: 33,
+    marginHorizontal: 16,
+    padding: 5,
+  },
   input: {
     height: 50,
     borderColor: `transparent`,
-    borderBottomColor: "#FF6C00",
+
     borderWidth: 1,
   },
   btn: {
-    borderRadius: 100,
-    backgroundColor: "#FF6C00",
-    height: 51,
-    marginTop: 43,
-    marginBottom: 30,
-    justifyContent: "center",
-    textAlign: "center",
+    position: "absolute",
+    top: 16,
+    right: 16,
   },
-  btnText: {
-    fontWeight: 400,
-    fontSize: 16,
-    lineHeight: 19,
-    textAlign: "center",
-    color: "#FFFFFF",
-  },
+  // btnText: {
+  //   fontWeight: 400,
+  //   fontSize: 16,
+  //   lineHeight: 19,
+  //   textAlign: "center",
+  //   color: "#FFFFFF",
+  // },
 });
 
 export default CommentsScreen;

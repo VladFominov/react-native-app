@@ -8,25 +8,25 @@ import {
 
 import { FIREBASE_AUTH } from "../../firebase/config";
 
-import { authSlice } from "./authReducer";
-
-const { authSignOut, authStateChange, updateUserProfile } = authSlice.actions;
+import { updateUserProfile, authStateChange,authSignOut } from "./authReducer";
 
 const auth = FIREBASE_AUTH;
 
 export const authSingUpUser =
-  ({ nickName, email, password }) =>
+  ({nickName,email, password }) =>
   async (dispatch, getState) => {
     try {
       await createUserWithEmailAndPassword(auth, email, password);
 
       const user = await auth.currentUser;
+      // console.log("user: ", user);
       
-      await updateProfile(user, { displayName: nickName });
+       await updateProfile(user, { displayName: nickName });
 
-      const { uid, displayName } = auth.currentUser;
+      const { uid, displayName} = auth.currentUser;
 
-      const userUpdateProfile = { nickName: displayName, userId: uid };
+      const userUpdateProfile = { nickName: displayName, userId: uid, email: email };
+      // console.log("userUpdateProfile: ", userUpdateProfile);
 
       dispatch(updateUserProfile(userUpdateProfile));
     } catch (err) {
@@ -60,9 +60,11 @@ export const authStateChangeUser = () => async (dispatch, getState) => {
   try {
     await onAuthStateChanged(auth, (user) => {
       if (user) {
+        console.log("user authStateChangeUser:",user)
         const userUpdateProfile = {
           nickName: user.displayName,
           userId: user.uid,
+          email: user.email,
         };
         // authSlice.actions.
         dispatch(updateUserProfile(userUpdateProfile));

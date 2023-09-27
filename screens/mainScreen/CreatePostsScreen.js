@@ -1,8 +1,6 @@
 import { useState, useEffect } from "react";
 import { useSelector } from "react-redux";
 import * as Location from "expo-location";
-import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
-import { collection, addDoc } from "firebase/firestore";
 import {
   TouchableOpacity,
   View,
@@ -15,22 +13,23 @@ import { useIsFocused } from "@react-navigation/native";
 import { Camera, CameraType } from "expo-camera";
 import * as MediaLibrary from "expo-media-library";
 import { AntDesign, MaterialIcons, EvilIcons } from "@expo/vector-icons";
-
-import { STORAGE_DB, FIRESTORE_DB } from "../../firebase/config";
+// імпортую кастумний хук//
+import useFirebaseUpload from "../../hooks/useFirebaseUpload"
 
 const CreatePostScreen = ({ navigation }) => {
   const [camera, setCamera] = useState(null);
-
   const [hasCameraPermission, setHasCameraPermission] = useState(null);
   const [photo, setPhoto] = useState(null);
   const [comment, setComment] = useState("");
-const [totalLikes, setTotalLikes] = useState(0); 
+// const [totalLikes, setTotalLikes] = useState(0); 
   const [location, setLocation] = useState(null);
   const [imageLocation, setImageLocation] = useState(null);
   const [errorMsg, setErrorMsg] = useState(null);
   const [type, setType] = useState(CameraType.back);
 
   const isFocused = useIsFocused();
+  // деструктуризую з кастумного хука функцію та стан///
+  const {uploadImageAndAddToFirestore,isLoading } = useFirebaseUpload()
 
   const { userId, nickName } = useSelector((state) => state.auth);
 
@@ -50,9 +49,9 @@ const [totalLikes, setTotalLikes] = useState(0);
         setErrorMsg("Permission to access location was denied");
         return;
       }
-
-      let location = await Location.getCurrentPositionAsync({});
-      console.log("Location:", location);
+      let location = await Location.getLastKnownPositionAsync() 
+      // let location = await Location.getCurrentPositionAsync({accuracy: LocationAccuracy.Low });
+     
       setLocation(location);
     })();
   }, []);
@@ -89,64 +88,10 @@ const [totalLikes, setTotalLikes] = useState(0);
   };
 
   const sendPhoto = async () => {
-    uploadPostToServer();
+    uploadImageAndAddToFirestore(photo, comment, location, userId, nickName,imageLocation);
     navigation.navigate("Posts");
     setPhoto(null);
     setComment("");
-  };
-
-  // функция, для корректной работы =================
-  const uriToBlob = (photo) => {
-    return new Promise((resolve, reject) => {
-      const xhr = new XMLHttpRequest();
-      xhr.onload = function () {
-        // return the blob
-        resolve(xhr.response);
-      };
-      xhr.onerror = function () {
-        reject(new Error("uriToBlob failed"));
-      };
-      xhr.responseType = "blob";
-      xhr.open("GET", photo, true);
-
-      xhr.send(null);
-    });
-  };
-
-  // end функция, для корректной работы =================
-
-  const uploadPhotoToServer = async () => {
-    const uniquePostId = Date.now().toString();
-    const storageRef = ref(STORAGE_DB, `images/${uniquePostId}`);
-    const blobFile = await uriToBlob(photo);
-
-    try {
-      await uploadBytes(storageRef, blobFile);
-      const data = await getDownloadURL(storageRef, data);
-     
-      return data;
-    } catch (err) {
-      console.log("err", err);
-      console.log("err.message", err.message);
-    }
-  };
-
-  const uploadPostToServer = async () => {
-    const photo = await uploadPhotoToServer();
-
-    try {
-      const createPost = await addDoc(collection(FIRESTORE_DB, "posts"), {
-        photo,
-        comment,
-        totalLikes, 
-        location: location.coords,
-        userId,
-        nickName,
-      });
-      console.log("createPost: ", createPost);
-    } catch (err) {
-      console.error("Error adding document: ", err);
-    }
   };
 
   return (
@@ -210,7 +155,8 @@ const [totalLikes, setTotalLikes] = useState(0);
             style={{ height: 50, borderColor: `#E5E5E5` }}
             placeholder="Місцевість..."
             value={imageLocation}
-            onChangeText={setImageLocation}
+            editable={false}
+            // onChangeText={setImageLocation}
           ></TextInput>
         </View>
         <TouchableOpacity
@@ -298,3 +244,102 @@ const styles = StyleSheet.create({
 });
 
 export default CreatePostScreen;
+
+// const [camera, setCamera] = useState(null);
+// const [hasCameraPermission, setHasCameraPermission] = useState(null);
+// const [avatar, setAvatar] = useState(null);
+// const [photo, setPhoto] = useState(null);
+// const [comment, setComment] = useState("");
+// const [totalLikes, setTotalLikes] = useState(0); 
+// const [location, setLocation] = useState(null);
+// const [imageLocation, setImageLocation] = useState(null);
+// const [errorMsg, setErrorMsg] = useState(null);
+// const [type, setType] = useState(CameraType.back);
+// const takePhoto = async () => {
+//   const photo = await camera.takePictureAsync();
+//   setPhoto(photo.uri);
+//   // якщо є локація мі забираємо дані
+//   if (location && location.coords) {
+//     console.log("Location: ", location);
+//     try {
+//       const locationInfo = await Location.reverseGeocodeAsync({
+//         latitude: location.coords.latitude,
+//         longitude: location.coords.longitude,
+//       });
+//       console.log("locationInfo: ", locationInfo);
+//       if (locationInfo && locationInfo.length > 0) {
+//         const formattedAddress = locationInfo[0].region;
+
+//         setImageLocation(formattedAddress);
+//       }
+//     } catch (error) {
+//       console.error("Error while fetching location info:", error);
+//     }
+//   }else {
+//     // Handle the case when location is not available
+//     console.log("Location data is not available.");
+//   }
+//   //кінець коду по забору даних по локації
+// };
+
+// const sendPhoto = async () => {
+//   uploadPostToServer();
+//   navigation.navigate("Posts");
+//   setPhoto(null);
+//   setComment("");
+// };
+
+// // функция, для корректной работы =================
+// const uriToBlob = (photo) => {
+//   return new Promise((resolve, reject) => {
+//     const xhr = new XMLHttpRequest();
+//     xhr.onload = function () {
+//       // return the blob
+//       resolve(xhr.response);
+//     };
+//     xhr.onerror = function () {
+//       reject(new Error("uriToBlob failed"));
+//     };
+//     xhr.responseType = "blob";
+//     xhr.open("GET", photo, true);
+
+//     xhr.send(null);
+//   });
+// };
+
+// // end функция, для корректной работы =================
+
+// const uploadPhotoToServer = async () => {
+//   const uniquePostId = Date.now().toString();
+//   const storageRef = ref(STORAGE_DB, `images/${uniquePostId}`);
+//   const blobFile = await uriToBlob(photo);
+
+//   try {
+//     await uploadBytes(storageRef, blobFile);
+//     const data = await getDownloadURL(storageRef, data);
+   
+//     return data;
+//   } catch (err) {
+//     console.log("err", err);
+//     console.log("err.message", err.message);
+//   }
+// };
+
+// const uploadPostToServer = async () => {
+//   const photo = await uploadPhotoToServer();
+
+//   try {
+//     const createPost = await addDoc(collection(FIRESTORE_DB, "posts"), {
+//       avatar,
+//       photo,
+//       comment,
+//       totalLikes, 
+//       location: location.coords,
+//       userId,
+//       nickName,
+//     });
+//     console.log("createPost: ", createPost);
+//   } catch (err) {
+//     console.error("Error adding document: ", err);
+//   }
+// };

@@ -65,7 +65,7 @@ export default function RegisterScreen({ navigation }) {
   };
 
   const marginBottomValue = isShowKeyboard ? 32 : 78;
-  // onPress={keyboardHide}
+
   return (
     <TouchableWithoutFeedback>
       <View style={styles.container}>
@@ -98,7 +98,7 @@ export default function RegisterScreen({ navigation }) {
                 </View>
                 <View style={{ marginTop: 16 }}>
                   <TextInput
-                    // style={styles.input}
+                  
                     style={[
                       styles.input,
                       isEmailFocused && styles.inputFocused,

@@ -83,6 +83,7 @@ const DefaultScreenPosts = ({ navigation }) => {
               commentsAmount={commentsCounts[item.id]}
               likesCountHandler={() => incrementLikes(item.id)}
               likesAmount={likesCounts[item.id]}
+              imageLocation={item.imageLocation}
             />
           </View>
         )}
@@ -96,6 +97,7 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
+    paddingHorizontal: 16,
   },
 });
 

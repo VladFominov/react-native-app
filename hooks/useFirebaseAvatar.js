@@ -9,14 +9,12 @@ const useFirebaseAvatar = () => {
     setIsLoading(true);
 
     try {
-      // Upload avatar image to Firebase Storage
-     
       const avatarRef = ref(STORAGE_DB, `avatars/${userId}`);
       const blobFile = await uriToBlob(imageUri);
        await uploadBytes(avatarRef, blobFile);
 
-      // Get the download URL of the uploaded avatar
       const uploadedAvatarUrl = await getDownloadURL(avatarRef);
+
       setIsLoading(false);
       return uploadedAvatarUrl;
     } catch (error) {
@@ -40,7 +38,7 @@ const useFirebaseAvatar = () => {
 
   const clearAvatar = async (userId) => {
     try {
-      // Delete avatar image from Firebase Storage
+    
       const userIdStr = String(userId);
       const avatarRef =  ref(STORAGE_DB, `avatars/${userIdStr}`);
        await deleteObject(avatarRef);

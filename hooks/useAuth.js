@@ -15,12 +15,10 @@ const useAuth = () => {
         if (user) {
             navigation.navigate("Posts")
         } else {
-          // User is signed out, dispatch sign-out action to Redux
+          
           dispatch(authSignOut());
         }
       });
-  
-      // Clean up the observer when the component unmounts
       return  unsubscribe;
     }, []);
   };

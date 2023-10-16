@@ -6,7 +6,6 @@
     "orientation": "default",
     "jsEngine": "hermes",
     "icon": "./assets/icon.png",
-  
     "userInterfaceStyle": "light",
     "splash": {
       "image": "./assets/splash.png",
@@ -23,10 +22,16 @@
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
-      }
+      },
+      "package": "com.vlad.reactnative"
     },
     "web": {
       "favicon": "./assets/favicon.png"
+    },
+    "extra": {
+      "eas": {
+        "projectId": "b5379055-e6a9-443c-9aec-fa1f535a5c33"
+      }
     }
   }
 }

@@ -10,22 +10,19 @@ const useFirebaseUpload = () => {
     setIsLoading(true);
 
     try {
-      // Upload image to Firebase Storage
       const uniquePostId = Date.now().toString();
       const storageRef = ref(STORAGE_DB, `images/${uniquePostId}`);
       const blobFile = await uriToBlob(photoUri);
       await uploadBytes(storageRef, blobFile);
 
-      // Get the download URL of the uploaded image
       const downloadUrl = await getDownloadURL(storageRef);
 
-      // Add data to Firestore
       await addDoc(collection(FIRESTORE_DB, 'posts'), {
         imageLocation:imageLocation,
        
         photo: downloadUrl,
         comment,
-        totalLikes: 0, // You can set your initial value here
+        totalLikes: 0, 
         location: location.coords,
         userId,
         nickName,
@@ -42,7 +39,7 @@ const useFirebaseUpload = () => {
     return new Promise((resolve, reject) => {
             const xhr = new XMLHttpRequest();
             xhr.onload = function () {
-              // return the blob
+        
               resolve(xhr.response);
             };
             xhr.onerror = function () {

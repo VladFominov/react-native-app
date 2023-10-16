@@ -19,15 +19,13 @@ export const authSingUpUser =
       await createUserWithEmailAndPassword(auth, email, password);
 
       const user = await auth.currentUser;
-      // console.log("user: ", user);
-      
+         
        await updateProfile(user, { displayName: nickName });
 
       const { uid, displayName} = auth.currentUser;
 
       const userUpdateProfile = { nickName: displayName, userId: uid, email: email };
-      // console.log("userUpdateProfile: ", userUpdateProfile);
-
+     
       dispatch(updateUserProfile(userUpdateProfile));
     } catch (err) {
       console.log("err", err);
@@ -60,22 +58,20 @@ export const authStateChangeUser = () => async (dispatch, getState) => {
   try {
     await onAuthStateChanged(auth, (user) => {
       if (user) {
-        console.log("user authStateChangeUser:",user)
+       
         const userUpdateProfile = {
           nickName: user.displayName,
           userId: user.uid,
           email: user.email,
         };
-        // authSlice.actions.
+    
         dispatch(updateUserProfile(userUpdateProfile));
         dispatch(authStateChange({ stateChange: true }));
       } else {
-        // Handle case when user is null
         console.log("User is null");
       }
     });
   } catch (err) {
-    // Handle any errors that occur during the auth state change
-    console.error("Error in authStateChangeUser:", error);
+    console.error("Error in authStateChangeUser:", err);
   }
 };

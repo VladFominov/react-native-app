@@ -9,9 +9,7 @@ import {
   Image,
   FlatList,
   ImageBackground,
-  Dimensions,
-  SafeAreaView,
-   
+  Dimensions,  
 } from "react-native";
 import { Octicons, Ionicons, Entypo } from "@expo/vector-icons";
 import {
@@ -53,8 +51,6 @@ const ProfileScreen = ({ navigation }) => {
     getUserPost();
   }, [userId]);
 
- 
-  // створення аватару ////////
   const pickImage = async () => {
     let result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ImagePicker.MediaTypeOptions.All,
@@ -71,7 +67,6 @@ const ProfileScreen = ({ navigation }) => {
         userId,
         result.assets[0].uri
       );
-       // Update the avatar URL in Firestore
       
       setAvatar(uploadedAvatarUrl);
     } catch (err) {
@@ -80,14 +75,14 @@ const ProfileScreen = ({ navigation }) => {
   };
 
   const getUserAvatar = async () => {
-    // Fetch user's avatar
+
     try {
       const avatarUrl = await getAvatarUrl(userId);
       if (avatarUrl) {
         setAvatar(avatarUrl);
       } else {
-        // Handle the case where the avatar doesn't exist
-        setAvatar(null); // or set a default avatar
+       
+        setAvatar(null); 
       }
     } catch (err) {
       console.error("Error fetching avatar:", err);
@@ -104,8 +99,7 @@ const ProfileScreen = ({ navigation }) => {
       collection(FIRESTORE_DB, "posts"),
       where("userId", "==", userId)
     );
-    // Initialize an object to store comments counts
-
+   
     await onSnapshot(q, (data) => {
       const postList = data.docs.map((doc) => ({
         ...doc.data(),
@@ -114,7 +108,6 @@ const ProfileScreen = ({ navigation }) => {
       const initialLikesCounts = {};
       const initialCommentsCounts = {};
 
-      // Create a function to fetch comments for a post
       const fetchComments = async (post) => {
         initialLikesCounts[post.id] = post.totalLikes || 0;
         const commentsSnapshot = await getDocs(
@@ -123,10 +116,8 @@ const ProfileScreen = ({ navigation }) => {
         initialCommentsCounts[post.id] = commentsSnapshot.size;
       };
 
-      // Create an array of promises to fetch comments for each post
       const fetchCommentsPromises = postList.map(fetchComments);
 
-      // Wait for all comments to be fetched before setting state
       Promise.all(fetchCommentsPromises)
         .then(() => {
           setUserPost(postList);

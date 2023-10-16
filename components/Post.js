@@ -6,13 +6,10 @@ import {
     StyleSheet,
     Text,
     Image,
-    TextInput,
   } from "react-native";
 
-const Post = ({ imageUri,postComment, commentsLink,commentsAmount,likesCountHandler ,likesAmount,locationLink,imageLocation}) => {
+const Post = React.memo( ({ imageUri,postComment, commentsLink,commentsAmount,likesCountHandler ,likesAmount,locationLink,imageLocation}) => {
  
-
-
   return (
     <View style={styles.container}>
 
@@ -51,14 +48,12 @@ const Post = ({ imageUri,postComment, commentsLink,commentsAmount,likesCountHand
            
   </View>
   )
-}
+})
 
 export default Post;
 
 const styles = StyleSheet.create({
-  // container:{
-  //   paddingHorizontal: 20,
-  // },
+
   postCommentText:{
     marginLeft: 11,
     fontSize:16,
@@ -68,7 +63,6 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent:'space-between',
     alignItems: 'center',
-    // gap: 20,
     marginTop: 10,
     marginHorizontal:16,
   },
@@ -94,12 +88,3 @@ likesContainer:{
 })
 
 
-  // const imageLocationLimitText = async({imageLocation}) => {
-  //   let currentImgLocation = await imageLocation;
-  //  let maxLength = 14;
-  //  if(currentImgLocation.length <= maxLength){
-  //    return currentImgLocation;
-  //   }else{
-  //      return currentImgLocation.substring(0, maxLength) + "...";
-  //   }
-  //  }

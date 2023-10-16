@@ -8,21 +8,15 @@ import {
   SafeAreaView,
   FlatList,
   Image,
-  KeyboardAvoidingView,
   TouchableWithoutFeedback,
   Keyboard,
 } from "react-native";
 import { FontAwesome5 } from "@expo/vector-icons";
-import { ref, uploadBytes, getDownloadURL, deleteObject } from 'firebase/storage';
-import {  STORAGE_DB } from '../../firebase/config';
 import { useSelector } from "react-redux";
 import {
   collection,
   addDoc,
   onSnapshot,
-  getDocs,
-  query,
-  where,
 } from "firebase/firestore";
 
 import { FIRESTORE_DB } from "../../firebase/config";
@@ -125,8 +119,6 @@ const CommentsScreen = ({ route }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    
-    // justifyContent: 'flex-end',
   },
   imgContainer: {
     marginHorizontal: 16,
@@ -167,13 +159,7 @@ const styles = StyleSheet.create({
     top: 16,
     right: 16,
   },
-  // btnText: {
-  //   fontWeight: 400,
-  //   fontSize: 16,
-  //   lineHeight: 19,
-  //   textAlign: "center",
-  //   color: "#FFFFFF",
-  // },
+
 });
 
 export default CommentsScreen;

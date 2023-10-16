@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
 import { collection, onSnapshot, doc, updateDoc, getDocs } from "firebase/firestore";
 import {
-  Text,
   View,
   StyleSheet,
   FlatList,
@@ -33,10 +32,8 @@ const DefaultScreenPosts = ({ navigation }) => {
       initialCommentsCounts[post.id] = commentsSnapshot.size;
     };
 
-    // Create an array of promises to fetch comments for each post
     const fetchCommentsPromises = postList.map(fetchComments);
 
-    // Wait for all comments to be fetched before setting state
     Promise.all(fetchCommentsPromises)
       .then(() => {
         setPosts(postList);

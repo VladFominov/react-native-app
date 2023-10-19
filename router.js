@@ -16,7 +16,6 @@ const AuthStack = createStackNavigator();
 const MainTab = createBottomTabNavigator();
 
 const useRoute = (isAuth) => {
-  
   if (!isAuth) {
     return (
       <AuthStack.Navigator>
@@ -34,18 +33,22 @@ const useRoute = (isAuth) => {
     );
   }
   return (
-    <MainTab.Navigator screenOptions={{ tabBarShowLabel: false,tabBarStyle:{
-      height: 60,
-    },
-    tabBarActiveTintColor: "#FF6C00" }}>
+    <MainTab.Navigator
+      screenOptions={{
+        tabBarShowLabel: false,
+        tabBarStyle: {
+          height: 60,
+        },
+        tabBarActiveTintColor: "#FF6C00",
+      }}
+    >
       <MainTab.Screen
         options={{
           tabBarIcon: ({ focused, size, color }) => (
             <MaterialCommunityIcons name="post" size={45} color={color} />
           ),
-          
         }}
-        name="Posts"
+        name="Пости"
         component={PostsScreen}
       />
       <MainTab.Screen
@@ -59,7 +62,7 @@ const useRoute = (isAuth) => {
       />
       <MainTab.Screen
         options={{
-           headerShown: false ,
+          headerShown: false,
           tabBarIcon: ({ focused, size, color }) => (
             <SimpleLineIcons name="user" size={45} color={color} />
           ),
